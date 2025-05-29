@@ -1,21 +1,48 @@
 package com.persons.finder.domain.services
 
-import com.persons.finder.data.Location
+import com.persons.finder.data.entity.PersonLocationEntity
+import com.persons.finder.data.repository.PersonLocationRepository
+import com.persons.finder.data.repository.PersonRepository
+import com.persons.finder.domain.model.Location
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.PrecisionModel
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-class LocationsServiceImpl : LocationsService {
+class LocationsServiceImpl(
+    private val personRepository: PersonRepository,
+    private val personLocationRepository: PersonLocationRepository,
+    private val geometryFactory: GeometryFactory = GeometryFactory(PrecisionModel(), 4326)
+) : LocationsService {
 
+    @Transactional
     override fun addLocation(location: Location) {
-        TODO("Not yet implemented")
+        val person = personRepository.findById(location.referenceId).orElseThrow {
+            IllegalArgumentException("Person not found with id: ${location.referenceId}")
+        }
+        
+        val point = geometryFactory.createPoint(Coordinate(location.longitude, location.latitude))
+        
+        personLocationRepository.findByPersonId(location.referenceId)?.let { existing ->
+            existing.location = point
+            personLocationRepository.save(existing)
+        } ?: run {
+            personLocationRepository.save(PersonLocationEntity(person = person, location = point))
+        }
     }
 
+    @Transactional
     override fun removeLocation(locationReferenceId: Long) {
-        TODO("Not yet implemented")
+        personLocationRepository.deleteByPersonId(locationReferenceId)
     }
 
+    @Transactional(readOnly = true)
     override fun findAround(latitude: Double, longitude: Double, radiusInKm: Double): List<Location> {
-        TODO("Not yet implemented")
+        return personLocationRepository.findWithinRadius(latitude, longitude, radiusInKm).map {
+            val coord = it.location.coordinate
+            Location(it.person.id, coord.y, coord.x)
+        }
     }
-
 }
