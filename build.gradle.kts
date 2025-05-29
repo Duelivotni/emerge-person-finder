@@ -25,21 +25,25 @@ dependencies {
 
 	// Database
 	implementation("org.postgresql:postgresql")
-	implementation("com.h2database:h2") // For testing
 
 	// spatial
 	implementation("org.hibernate.orm:hibernate-spatial")
 
 	implementation("org.n52.jackson:jackson-datatype-jts:1.2.10")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
 	// api Docs
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
-	// for validation: missing locations or malformed input etc.
+	// validation
 	implementation ("org.springframework.boot:spring-boot-starter-validation")
 
 	// testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.testcontainers:testcontainers:1.19.8")
+	testImplementation("org.testcontainers:postgresql:1.19.8")
+	testImplementation("org.testcontainers:junit-jupiter:1.19.8")
+	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 }
 
 tasks.withType<KotlinCompile> {

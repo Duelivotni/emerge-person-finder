@@ -2,6 +2,7 @@ package com.persons.finder.presentation.controller
 
 import com.persons.finder.application.exception.InvalidSearchCriteriaException
 import com.persons.finder.domain.exception.PersonNotFoundException
+import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.FieldError
@@ -45,7 +46,29 @@ class GlobalExceptionHandler {
             timestamp = LocalDateTime.now(),
             status = HttpStatus.BAD_REQUEST.value(),
             error = "Bad Request",
-            message = "Validation failed for request.",
+            message = "Validation failed for request body.", // Clarified message
+            errors = errors,
+            path = request.requestURI
+        )
+        return ResponseEntity.badRequest().body(errorResponse)
+    }
+
+    @ExceptionHandler(ConstraintViolationException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleConstraintViolationException(
+        ex: ConstraintViolationException,
+        request: jakarta.servlet.http.HttpServletRequest
+    ): ResponseEntity<ValidationErrorResponse> {
+        val errors = ex.constraintViolations.associate { violation ->
+            val path = violation.propertyPath.toString()
+            val paramName = path.substringAfterLast('.')
+            paramName to violation.message
+        }
+        val errorResponse = ValidationErrorResponse(
+            timestamp = LocalDateTime.now(),
+            status = HttpStatus.BAD_REQUEST.value(),
+            error = "Bad Request",
+            message = "Validation failed for request parameters.",
             errors = errors,
             path = request.requestURI
         )
