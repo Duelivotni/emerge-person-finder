@@ -3,6 +3,7 @@ package com.persons.finder.domain.services
 import com.persons.finder.data.entity.PersonEntity
 import com.persons.finder.data.repository.PersonRepository
 import com.persons.finder.domain.model.Person
+import com.persons.finder.domain.exception.PersonNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -14,7 +15,7 @@ class PersonsServiceImpl(
     @Transactional(readOnly = true)
     override fun getById(id: Long): Person {
         val entity = personRepository.findById(id).orElseThrow {
-            IllegalArgumentException("Person not found with id: $id")
+            PersonNotFoundException("Person not found with id: $id")
         }
         return Person(entity.id, entity.name)
     }

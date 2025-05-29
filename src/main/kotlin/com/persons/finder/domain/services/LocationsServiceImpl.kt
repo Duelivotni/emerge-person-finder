@@ -4,6 +4,7 @@ import com.persons.finder.data.entity.PersonLocationEntity
 import com.persons.finder.data.repository.PersonLocationRepository
 import com.persons.finder.data.repository.PersonRepository
 import com.persons.finder.domain.model.Location
+import com.persons.finder.domain.exception.PersonNotFoundException
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel
@@ -20,11 +21,11 @@ class LocationsServiceImpl(
     @Transactional
     override fun addLocation(location: Location) {
         val person = personRepository.findById(location.referenceId).orElseThrow {
-            IllegalArgumentException("Person not found with id: ${location.referenceId}")
+            PersonNotFoundException("Person not found with id: ${location.referenceId}")
         }
-        
+
         val point = geometryFactory.createPoint(Coordinate(location.longitude, location.latitude))
-        
+
         personLocationRepository.findByPersonId(location.referenceId)?.let { existing ->
             existing.location = point
             personLocationRepository.save(existing)

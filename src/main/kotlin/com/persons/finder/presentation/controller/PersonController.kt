@@ -14,6 +14,9 @@ import com.persons.finder.application.usecases.person.CreatePersonUseCase
 import com.persons.finder.application.usecases.person.FindNearbyPersonsUseCase
 import com.persons.finder.application.usecases.person.GetPersonsUseCase
 import com.persons.finder.application.usecases.person.UpdateLocationUseCase
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -31,16 +34,11 @@ class PersonController @Autowired constructor(
 
     @PostMapping
     fun createPerson(
-        @RequestBody request: CreatePersonRequest,
+        @RequestBody @Valid request: CreatePersonRequest,
         uriBuilder: UriComponentsBuilder
     ): ResponseEntity<PersonResponse> {
-        // 1. Map presentation DTO to Use Case Command
         val command = CreatePersonCommand(name = request.name)
-
-        // 2. Execute the Use Case
         val result = createPersonUseCase.execute(command)
-
-        // 3. Map Use Case Result to Presentation DTO and return response
         val locationUri = uriBuilder.path("/api/v1/persons/{id}").buildAndExpand(result.id).toUri()
         return ResponseEntity.created(locationUri).body(PersonResponse(result.id, result.name))
     }
@@ -48,45 +46,29 @@ class PersonController @Autowired constructor(
     @PutMapping("/{id}/location")
     fun updateLocation(
         @PathVariable id: Long,
-        @RequestBody request: UpdateLocationRequest
+        @RequestBody @Valid request: UpdateLocationRequest
     ): ResponseEntity<Unit> {
-        // 1. Map presentation DTO to Use Case Command
         val command = UpdateLocationCommand(personId = id, latitude = request.latitude, longitude = request.longitude)
-
-        // 2. Execute the Use Case
-        updateLocationUseCase.execute(command) // Result might be consumed here if not needed for HTTP response
-
-        // 3. Return appropriate HTTP response
+        updateLocationUseCase.execute(command)
         return ResponseEntity.ok().build()
     }
 
     @GetMapping("/nearby")
     fun findNearby(
-        @RequestParam lat: Double,
-        @RequestParam lon: Double,
-        @RequestParam radiusKm: Double
+        @RequestParam @Min(value = -90, message = "Latitude must be between -90 and 90") @Max(value = 90, message = "Latitude must be between -90 and 90") lat: Double,
+        @RequestParam @Min(value = -180, message = "Longitude must be between -180 and 180") @Max(value = 180, message = "Longitude must be between -180 and 180") lon: Double,
+        @RequestParam @Min(value = 0, message = "Radius must be non-negative") radiusKm: Double
     ): ResponseEntity<List<NearbyPersonResponse>> {
-        // 1. Map request parameters to Use Case Query
         val query = FindNearbyPersonsQuery(latitude = lat, longitude = lon, radiusKm = radiusKm)
-
-        // 2. Execute the Use Case
         val results = findNearbyPersonsUseCase.execute(query)
-
-        // 3. Map Use Case Results to Presentation DTOs and return response
         val response = results.map { NearbyPersonResponse(it.id, it.name, it.distanceKm) }
-
         return ResponseEntity.ok(response)
     }
 
     @GetMapping
     fun getPersons(@RequestParam id: List<Long>): ResponseEntity<PersonsResponse> {
-        // 1. Map request parameters to Use Case Query
         val query = GetPersonsQuery(ids = id)
-
-        // 2. Execute the Use Case
         val results = getPersonsUseCase.execute(query)
-
-        // 3. Map Use Case Results to Presentation DTOs and return response
         val response = PersonsResponse(
             persons = results.map { PersonResponse(it.id, it.name) }
         )
