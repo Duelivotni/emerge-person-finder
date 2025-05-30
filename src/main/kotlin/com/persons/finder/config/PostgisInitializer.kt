@@ -13,12 +13,11 @@ class PostgisInitializer(private val jdbcTemplate: JdbcTemplate) {
 
     /**
      * Ensures the Postgis extension is enabled in the PostgreSQL on app startup.
-     * Postgis is required for spatial capabilities, to store and query geographical data (like points and distances) efficiently.
-     * Which is required for the app to search for people based on location
+     * Postgis is required for spatial capabilities to store and query geographical data like points and distances efficiently.
      */
     @EventListener(ApplicationReadyEvent::class)
     fun enablePostgisExtension() {
-        val sql = "CREATE EXTENSION IF NOT EXISTS postgis;"
+        val sql = "create extension if not exists postgis;"
         try {
             jdbcTemplate.execute(sql)
             log.info("PostGIS extension ensured to be enabled.")

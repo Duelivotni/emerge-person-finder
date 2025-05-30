@@ -6,6 +6,7 @@ import org.locationtech.jts.geom.Point
 
 data class Location(
     val referenceId: Long,
+    val personName: String,
     val latitude: Double,
     val longitude: Double
 ) {

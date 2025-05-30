@@ -8,6 +8,8 @@ import com.persons.finder.domain.exception.PersonNotFoundException
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -40,10 +42,14 @@ class LocationsServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun findAround(latitude: Double, longitude: Double, radiusInKm: Double): List<Location> {
-        return personLocationRepository.findWithinRadius(latitude, longitude, radiusInKm).map {
-            val coord = it.location.coordinate
-            Location(it.person.id, coord.y, coord.x)
+    override fun findAround(latitude: Double, longitude: Double, radiusInMeters: Double, pageable: Pageable): Page<Location> { // <--- ADD pageable parameter
+        return personLocationRepository.findWithinRadius(latitude, longitude, radiusInMeters, pageable).map { projection ->
+            Location(
+                referenceId = projection.getPersonId(),
+                personName = projection.getPersonName(),
+                latitude = projection.getLatitude(),
+                longitude = projection.getLongitude()
+            )
         }
     }
 }

@@ -2,10 +2,12 @@ package com.persons.finder.application.usecases.person
 
 import com.persons.finder.application.query.FindNearbyPersonsQuery
 import com.persons.finder.application.result.NearbyPersonQueryResult
-import com.persons.finder.domain.exception.PersonNotFoundException
 import com.persons.finder.domain.services.LocationsService
-import com.persons.finder.domain.services.PersonsService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
+import java.util.stream.Collectors
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -18,30 +20,24 @@ import kotlin.math.sqrt
  */
 @Component
 class FindNearbyPersonsUseCaseImpl(
-    private val personsService: PersonsService,
     private val locationsService: LocationsService
 ) : FindNearbyPersonsUseCase {
 
     /**
      * Executes the nearby persons search based on the provided query.
      */
-    override fun execute(query: FindNearbyPersonsQuery): List<NearbyPersonQueryResult> {
-        val locations = locationsService.findAround(query.latitude, query.longitude, query.radiusKm)
-        val persons = personsService.getByIds(locations.map { it.referenceId })
+    override fun execute(query: FindNearbyPersonsQuery, pageable: Pageable): Page<NearbyPersonQueryResult> {
+        val locationsPage =
+            locationsService.findAround(query.latitude, query.longitude, query.radiusKm * 1000, pageable)
 
-        // combine the locaton data with the person details and calculate their distance
-        val results = locations.map { location ->
-            val person = persons.firstOrNull { it.id == location.referenceId }
-                ?: throw PersonNotFoundException("Person with ID ${location.referenceId} associated with location was not found during nearby search.")
-
-            // calculate the distance from the query point to this person location
+        return locationsPage.mapParallel { location ->
             val distance = calculateDistance(query.latitude, query.longitude, location.latitude, location.longitude)
-
-            // Map the combined data into a result object.
-            NearbyPersonQueryResult(person.id, person.name, distance)
-        }.sortedBy { it.distanceKm } // sort by the calculated distance in asc order.
-
-        return results
+            NearbyPersonQueryResult(
+                id = location.referenceId,
+                name = location.personName,
+                distanceKm = distance
+            )
+        }
     }
 
     /**
@@ -72,5 +68,10 @@ class FindNearbyPersonsUseCaseImpl(
 
         // multiply angular distance by Earth radius to get distance in kilometers.
         return earthRadiusKm * c
+    }
+
+    fun <T, R> Page<T>.mapParallel(transform: (T) -> R): Page<R> {
+        val content = this.content.parallelStream().map(transform).collect(Collectors.toList())
+        return PageImpl(content, this.pageable, this.totalElements)
     }
 }
