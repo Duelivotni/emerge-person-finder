@@ -1,4 +1,4 @@
-package com.persons.finder.domain.services
+package com.persons.finder.domain.services.impl
 
 import com.persons.finder.data.entity.PersonLocationEntity
 import com.persons.finder.data.repository.PersonLocationRepository
@@ -6,6 +6,7 @@ import com.persons.finder.data.repository.PersonRepository
 import com.persons.finder.domain.model.Location
 import com.persons.finder.domain.exception.PersonNotFoundException
 import com.persons.finder.domain.model.PersonLocationDetails
+import com.persons.finder.domain.services.LocationsService
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel

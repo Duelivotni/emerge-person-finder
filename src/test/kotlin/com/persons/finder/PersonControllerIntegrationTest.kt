@@ -176,10 +176,17 @@ class PersonControllerIntegrationTest {
                 .param("radiusKm", radius.toString())
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$").isArray)
-            .andExpect(jsonPath("$.length()").value(2))
-            .andExpect(jsonPath("$[0].name").value("Putin"))
-            .andExpect(jsonPath("$[1].name").value("Zelensky"))
+            .andExpect(jsonPath("$.content").isArray)
+            .andExpect(jsonPath("$.content.length()").value(2))
+            .andExpect(jsonPath("$.content[0].name").value("Putin"))
+            .andExpect(jsonPath("$.content[1].name").value("Zelensky"))
+            .andExpect(jsonPath("$.totalPages").value(1))
+            .andExpect(jsonPath("$.totalElements").value(2))
+            .andExpect(jsonPath("$.empty").value(false))
+            .andExpect(jsonPath("$.first").value(true))
+            .andExpect(jsonPath("$.last").value(true))
+            .andExpect(jsonPath("$.number").value(0))
+            .andExpect(jsonPath("$.size").value(20))
     }
 
     @Test
@@ -198,8 +205,15 @@ class PersonControllerIntegrationTest {
                 .param("radiusKm", radius.toString())
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$").isArray)
-            .andExpect(jsonPath("$.length()").value(0))
+            .andExpect(jsonPath("$.content").isArray)
+            .andExpect(jsonPath("$.content.length()").value(0))
+            .andExpect(jsonPath("$.totalPages").value(0))
+            .andExpect(jsonPath("$.totalElements").value(0))
+            .andExpect(jsonPath("$.empty").value(true))
+            .andExpect(jsonPath("$.first").value(true))
+            .andExpect(jsonPath("$.last").value(true))
+            .andExpect(jsonPath("$.number").value(0))
+            .andExpect(jsonPath("$.size").value(20))
     }
 
     @Test

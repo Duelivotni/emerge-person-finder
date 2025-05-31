@@ -1,7 +1,8 @@
-package com.persons.finder.application.usecases.person
+package com.persons.finder.application.usecases.impl
 
 import com.persons.finder.application.command.UpdateLocationCommand
 import com.persons.finder.application.result.UpdateLocationResult
+import com.persons.finder.application.usecases.UpdateLocationUseCase
 import com.persons.finder.domain.model.Location
 import com.persons.finder.domain.services.LocationsService
 import org.springframework.stereotype.Component

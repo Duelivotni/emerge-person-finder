@@ -1,9 +1,10 @@
-package com.persons.finder.domain.services
+package com.persons.finder.domain.services.impl
 
 import com.persons.finder.data.entity.PersonEntity
 import com.persons.finder.data.repository.PersonRepository
 import com.persons.finder.domain.model.Person
 import com.persons.finder.domain.exception.PersonNotFoundException
+import com.persons.finder.domain.services.PersonsService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

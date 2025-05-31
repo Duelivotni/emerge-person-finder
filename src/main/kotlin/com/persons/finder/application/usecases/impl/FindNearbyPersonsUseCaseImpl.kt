@@ -1,7 +1,8 @@
-package com.persons.finder.application.usecases.person
+package com.persons.finder.application.usecases.impl
 
 import com.persons.finder.application.query.FindNearbyPersonsQuery
 import com.persons.finder.application.result.NearbyPersonQueryResult
+import com.persons.finder.application.usecases.FindNearbyPersonsUseCase
 import com.persons.finder.domain.services.LocationsService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

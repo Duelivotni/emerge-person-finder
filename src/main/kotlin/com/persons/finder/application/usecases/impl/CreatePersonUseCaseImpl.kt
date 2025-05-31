@@ -1,7 +1,8 @@
-package com.persons.finder.application.usecases.person
+package com.persons.finder.application.usecases.impl
 
 import com.persons.finder.application.command.CreatePersonCommand
 import com.persons.finder.application.result.PersonCreationResult
+import com.persons.finder.application.usecases.CreatePersonUseCase
 import com.persons.finder.domain.model.Person
 import com.persons.finder.domain.services.PersonsService
 import org.springframework.stereotype.Component

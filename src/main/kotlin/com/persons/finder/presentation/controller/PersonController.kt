@@ -4,10 +4,10 @@ import com.persons.finder.application.command.CreatePersonCommand
 import com.persons.finder.application.command.UpdateLocationCommand
 import com.persons.finder.application.query.FindNearbyPersonsQuery
 import com.persons.finder.application.query.GetPersonsQuery
-import com.persons.finder.application.usecases.person.CreatePersonUseCase
-import com.persons.finder.application.usecases.person.FindNearbyPersonsUseCase
-import com.persons.finder.application.usecases.person.GetPersonsUseCase
-import com.persons.finder.application.usecases.person.UpdateLocationUseCase
+import com.persons.finder.application.usecases.CreatePersonUseCase
+import com.persons.finder.application.usecases.FindNearbyPersonsUseCase
+import com.persons.finder.application.usecases.GetPersonsUseCase
+import com.persons.finder.application.usecases.UpdateLocationUseCase
 import com.persons.finder.presentation.dto.request.CreatePersonRequest
 import com.persons.finder.presentation.dto.request.UpdateLocationRequest
 import com.persons.finder.presentation.dto.response.NearbyPersonResponse

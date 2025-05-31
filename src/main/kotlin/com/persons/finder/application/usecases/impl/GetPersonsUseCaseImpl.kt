@@ -1,7 +1,8 @@
-package com.persons.finder.application.usecases.person
+package com.persons.finder.application.usecases.impl
 
 import com.persons.finder.application.query.GetPersonsQuery
 import com.persons.finder.application.result.PersonQueryResult
+import com.persons.finder.application.usecases.GetPersonsUseCase
 import com.persons.finder.domain.services.PersonsService
 import org.springframework.stereotype.Component
 
