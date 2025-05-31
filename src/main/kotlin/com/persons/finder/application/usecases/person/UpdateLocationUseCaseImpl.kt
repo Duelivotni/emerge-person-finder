@@ -12,7 +12,7 @@ class UpdateLocationUseCaseImpl(
 ) : UpdateLocationUseCase {
 
     override fun execute(command: UpdateLocationCommand): UpdateLocationResult {
-        val location = Location(command.personId, "", command.latitude, command.longitude)
+        val location = Location(command.personId, command.latitude, command.longitude)
         locationsService.addLocation(location)
         return UpdateLocationResult(command.personId, true)
     }

@@ -5,6 +5,7 @@ import com.persons.finder.data.repository.PersonLocationRepository
 import com.persons.finder.data.repository.PersonRepository
 import com.persons.finder.domain.model.Location
 import com.persons.finder.domain.exception.PersonNotFoundException
+import com.persons.finder.domain.model.PersonLocationDetails
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel
@@ -42,13 +43,14 @@ class LocationsServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun findAround(latitude: Double, longitude: Double, radiusInMeters: Double, pageable: Pageable): Page<Location> { // <--- ADD pageable parameter
+    override fun findAround(latitude: Double, longitude: Double, radiusInMeters: Double, pageable: Pageable): Page<PersonLocationDetails> {
         return personLocationRepository.findWithinRadius(latitude, longitude, radiusInMeters, pageable).map { projection ->
-            Location(
+            PersonLocationDetails(
                 referenceId = projection.getPersonId(),
                 personName = projection.getPersonName(),
                 latitude = projection.getLatitude(),
-                longitude = projection.getLongitude()
+                longitude = projection.getLongitude(),
+                distanceKm = projection.getDistanceKm()
             )
         }
     }

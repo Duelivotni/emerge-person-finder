@@ -19,7 +19,6 @@ import jakarta.validation.constraints.Min
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
@@ -63,10 +62,11 @@ class PersonController @Autowired constructor(
         @RequestParam @Min(value = 0, message = "Radius must be non-negative") radiusKm: Double,
         pageRequestParams: PageRequestParams
     ): ResponseEntity<Page<NearbyPersonResponse>> {
-        val pageable = PageRequest.of(pageRequestParams.page, pageRequestParams.size, Sort.by("distanceKm").ascending())
+        val effectiveSize = minOf(pageRequestParams.size, 500)
+        val pageable = PageRequest.of(pageRequestParams.page, effectiveSize)
         val query = FindNearbyPersonsQuery(latitude = lat, longitude = lon, radiusKm = radiusKm)
         val resultsPage = findNearbyPersonsUseCase.execute(query, pageable)
-        val responsePage = resultsPage.map { NearbyPersonResponse(it.id, it.name, it.distanceKm) }
+        val responsePage = resultsPage.map { NearbyPersonResponse(it.id, it.name, it.distanceKm, it.latitude, it.longitude) }
         return ResponseEntity.ok(responsePage)
     }
 
