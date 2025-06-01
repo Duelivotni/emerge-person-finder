@@ -44,6 +44,10 @@ dependencies {
 	testImplementation("org.testcontainers:postgresql:1.19.8")
 	testImplementation("org.testcontainers:junit-jupiter:1.19.8")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
+
+	// metrics
+	implementation ("org.springframework.boot:spring-boot-starter-actuator")
+	implementation ("io.micrometer:micrometer-registry-prometheus")
 }
 
 tasks.withType<KotlinCompile> {

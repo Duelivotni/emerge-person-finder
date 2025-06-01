@@ -1,0 +1,79 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Your Spring Boot Application
+  app:
+    build: . # Build from the Dockerfile in the current directory
+    container_name: persons_finder_app
+    ports:
+      - "8080:8080" # Access your app on http://localhost:8080
+    environment:
+      # These variables will override values in application.properties when running in Docker
+      - DEBUG=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/persons_finder
+      - SPRING_DATASOURCE_USERNAME=emerge
+      - SPRING_DATASOURCE_PASSWORD=emerge
+    depends_on:
+      - db # Ensure database starts before the app
+
+  # PostgreSQL Database with PostGIS
+  db:
+    image: postgis/postgis:15-3.3-alpine # Official PostGIS image
+    container_name: persons_finder_db
+    ports:
+      - "5432:5432" # Access DB on http://localhost:5432
+    environment:
+      POSTGRES_DB: persons_finder
+      POSTGRES_USER: emerge
+      POSTGRES_PASSWORD: emerge
+    volumes:
+      - db_data:/var/lib/postgresql/data # Persistent data volume
+    restart: unless-stopped
+
+  # PgAdmin 4
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_ui
+    ports:
+      - "5050:80" # Access PgAdmin UI on http://localhost:5050
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  # Prometheus Monitoring Server
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus_server
+    ports:
+      - "9090:9090" # Access Prometheus UI on http://localhost:9090
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml # Mount config
+      - prometheus_data:/prometheus # Persistent data volume for metrics
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    depends_on:
+      - app # Prometheus needs app to be running to scrape metrics
+    restart: unless-stopped
+
+  # Grafana Visualization Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_dashboard
+    ports:
+      - "3000:3000" # Access Grafana UI on http://localhost:3000
+    volumes:
+      - grafana_data:/var/lib/grafana # Persistent data volume for Grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning # Mount provisioning
+    depends_on:
+      - prometheus # Grafana needs Prometheus to be running as a data source
+    restart: unless-stopped
+
+volumes:
+  db_data: # Volume for PostgreSQL data
+  prometheus_data: # Volume for Prometheus metrics data
+  grafana_data: # Volume for Grafana data
