@@ -97,16 +97,43 @@ Data seeding:
 - Open PgAdmin ui http://localhost:5050/browser/ -> Tools -> Query tool
 - Run the query from src/main/kotlin/com/persons/finder/config/dataseeder.sql
 
+Performance Testing:
+
+10 000 000 users are almost equaly distributed around the following locations:
+
+-- City: Auckland, New Zealand
+('Auckland, NZ', 174.7645, -36.8485, 0.05, 0.05), -- lon, lat, lon_buffer (degrees), lat_buffer (degrees)
+-- City: Bluff, New Zealand
+('Bluff, NZ', 168.3499, -46.6083, 0.05, 0.05),
+-- City: Sydney, Australia
+('Sydney, AU', 151.2093, -33.8688, 0.1, 0.1),
+-- City: Tokyo, Japan
+('Tokyo, JP', 139.6917, 35.6895, 0.1, 0.1),
+-- City: New York, USA
+('New York, USA', -74.0060, 40.7128, 0.1, 0.1),
+-- City: Berlin, Germany
+('Berlin, DE', 13.4050, 52.5200, 0.1, 0.1)
+
 
 Application Performance with 10 000 000 records in both users, user_locations tables:
 
 ![image](https://github.com/user-attachments/assets/77ca33ea-c99d-4939-b009-6a088aa59daf)
 
+- find nearby users within 200 km radius: http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=200&page=1&size=100
+- Response time = 1 second 44 miliseconds:
+![image](https://github.com/user-attachments/assets/d8e619ca-8e02-4995-8e9c-6462b503b6db)
+
+
 - find nearby users within 1000 km radius: http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=5000&page=120&size=100
-- Response time = 1 second 45 miliseconds
+- Response time = 1 second 45 miliseconds:
 ![image](https://github.com/user-attachments/assets/45993f99-8c2c-4515-8b3b-27d77fc925ea)
+
+- find nearby users within 5000 km radius: http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=5000&page=100&size=100
+- Response time = 3 seconds 81 miliseconds:
+![image](https://github.com/user-attachments/assets/008339e0-3219-4e24-9672-18093ce0c187)
 
 
 - Overall Performance of all 4 api endpoints:
   
-![image](https://github.com/user-attachments/assets/beab2e45-afda-4adb-aff8-55cf0b929278)
+![image](https://github.com/user-attachments/assets/c7fbe1f3-b923-43fc-952e-cd3053d5a341)
+
