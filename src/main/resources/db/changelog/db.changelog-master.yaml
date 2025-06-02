@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/000_create_tables.yaml # This MUST come first
+  - include:
+      file: db/changelog/changes/001_create_gist_index.yaml
+    # Future changesets will go here

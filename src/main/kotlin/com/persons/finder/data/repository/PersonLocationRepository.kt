@@ -15,25 +15,50 @@ interface PersonLocationRepository : JpaRepository<PersonLocationEntity, Long> {
 
     @Query(
         value = """
-        SELECT
-            pl.id as locationId, p.id as personId, p.name as personName, 
-            ST_Y(pl.location::::geometry) as latitude, 
-            ST_X(pl.location::::geometry) as longitude, 
-            -- cast query point to GEOGRAPHY for accurate spheroidal distance
-            ST_Distance(pl.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::::geography) / 1000 as distanceKm 
-        FROM person_locations pl 
-        JOIN persons p ON pl.person_id = p.id 
-        -- search locations within the given radius
-        WHERE ST_DWithin(pl.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::::geography, :radiusInMeters) 
-        ORDER BY distanceKm ASC
-    """,
+            SELECT
+                pl.id AS locationId,
+                pl.person_id AS personId,
+                ST_Y(pl.location) AS latitude,
+                ST_X(pl.location) AS longitude,
+                ST_Distance(
+                    CAST(pl.location AS geography),
+                    CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geography)
+                ) / 1000 AS distanceKm
+            FROM person_locations pl
+            WHERE
+                -- fast, index-assisted bounding box filter using the GIST index.
+                -- Convert radiusInMeters to approximate degrees for ST_Expand.
+                pl.location && ST_Expand(
+                    CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geometry),
+                    CAST(:radiusInMeters AS double precision) / 111111.0 -- Approx. meters to degrees conversion
+                    -- conversion is necessary to ensure the ST_Expand function (which operates on geometry and its degree units) 
+                    -- it makes query result both complete (no missed points) and precise (only truly within-radius points)
+                )
+            AND
+                -- Accurate filter for spheroidal distance (geography).
+                -- ST_DWithin directly accepts radius in meters for geography type.
+                ST_DWithin(
+                    CAST(pl.location AS geography),
+                    CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geography),
+                    CAST(:radiusInMeters AS double precision)
+                )
+            ORDER BY distanceKm ASC
+        """,
         countQuery = """
-        -- count for pagination
-        SELECT COUNT(pl.id) 
-        FROM person_locations pl 
-        JOIN persons p ON pl.person_id = p.id 
-        WHERE ST_DWithin(pl.location, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::::geography, :radiusInMeters) -- Changed '::' to '::::'
-    """,
+            SELECT COUNT(pl.id)
+            FROM person_locations pl
+            WHERE
+                pl.location && ST_Expand(
+                    CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geometry),
+                    CAST(:radiusInMeters AS double precision) / 111111.0
+                )
+            AND
+                ST_DWithin(
+                    CAST(pl.location AS geography),
+                    CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geography),
+                    CAST(:radiusInMeters AS double precision)
+                )
+        """,
         nativeQuery = true
     )
     fun findWithinRadius(

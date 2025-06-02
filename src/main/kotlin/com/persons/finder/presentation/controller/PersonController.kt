@@ -62,11 +62,11 @@ class PersonController @Autowired constructor(
         @RequestParam @Min(value = 0, message = "Radius must be non-negative") radiusKm: Double,
         pageRequestParams: PageRequestParams
     ): ResponseEntity<Page<NearbyPersonResponse>> {
-        val effectiveSize = minOf(pageRequestParams.size, 500)
+        val effectiveSize = minOf(pageRequestParams.size, 100)
         val pageable = PageRequest.of(pageRequestParams.page, effectiveSize)
         val query = FindNearbyPersonsQuery(latitude = lat, longitude = lon, radiusKm = radiusKm)
         val resultsPage = findNearbyPersonsUseCase.execute(query, pageable)
-        val responsePage = resultsPage.map { NearbyPersonResponse(it.id, it.name, it.distanceKm, it.latitude, it.longitude) }
+        val responsePage = resultsPage.map { NearbyPersonResponse(it.personId, it.distanceKm, it.latitude, it.longitude) }
         return ResponseEntity.ok(responsePage)
     }
 

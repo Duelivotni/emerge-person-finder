@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 000-create-tables-initial
+      author: emerge
+      changes:
+        - sql:
+            comment: Create persons and person_locations tables with PostGIS geometry column
+            splitStatements: true
+            endDelimiter: ;
+            sql: |
+              CREATE TABLE persons (
+                  id BIGSERIAL PRIMARY KEY,
+                  name VARCHAR(255) NOT NULL
+              );
+
+              CREATE TABLE person_locations (
+                  id BIGSERIAL PRIMARY KEY,
+                  person_id BIGINT NOT NULL UNIQUE, -- The UNIQUE constraint implicitly creates a unique index on person_id
+                  location GEOMETRY(Point, 4326)
+              );
+
+              ALTER TABLE person_locations
+              ADD CONSTRAINT fk_person_location_person
+              FOREIGN KEY (person_id) REFERENCES persons(id);

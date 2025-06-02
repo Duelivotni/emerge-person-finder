@@ -27,8 +27,7 @@ class FindNearbyPersonsUseCaseImpl(
 
         return locationsPage.map { details ->
             NearbyPersonQueryResult(
-                id = details.referenceId,
-                name = details.personName,
+                personId = details.personId,
                 distanceKm = details.distanceKm,
                 latitude = details.latitude,
                 longitude = details.longitude

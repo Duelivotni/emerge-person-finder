@@ -45,10 +45,14 @@ class LocationsServiceImpl(
 
     @Transactional(readOnly = true)
     override fun findAround(latitude: Double, longitude: Double, radiusInMeters: Double, pageable: Pageable): Page<PersonLocationDetails> {
-        return personLocationRepository.findWithinRadius(latitude, longitude, radiusInMeters, pageable).map { projection ->
+        return personLocationRepository.findWithinRadius(
+            latitude,
+            longitude,
+            radiusInMeters,
+            pageable
+        ).map { projection ->
             PersonLocationDetails(
-                referenceId = projection.getPersonId(),
-                personName = projection.getPersonName(),
+                personId = projection.getPersonId(),
                 latitude = projection.getLatitude(),
                 longitude = projection.getLongitude(),
                 distanceKm = projection.getDistanceKm()

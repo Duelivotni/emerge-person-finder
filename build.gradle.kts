@@ -25,6 +25,7 @@ dependencies {
 
 	// Database
 	implementation("org.postgresql:postgresql")
+	implementation("org.liquibase:liquibase-core")
 
 	// spatial
 	implementation("org.hibernate.orm:hibernate-spatial")

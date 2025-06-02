@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-gist-index
+      author: emerge
+      changes:
+        - sql:
+            comment: Create a GIST index for spatial queries on person_locations.location
+            dbms: postgresql
+            splitStatements: true
+            endDelimiter: ;
+            sql: |
+              -- Drop the old BTREE index if it exists, before creating the GIST one.
+              DROP INDEX IF EXISTS idx_person_location_location_gist;
+
+              -- Create the correct GIST index
+              CREATE INDEX idx_person_location_location_gist ON person_locations USING GIST (location);
