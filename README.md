@@ -1,3 +1,6 @@
+Thanks for the fascinating task! I feel like I've leveled up a bit while working on it.
+I'm pretty sure I can now spot a cold database cache from a mile away... or at least from my 'docker stats' output.
+
 Key Achievements:
 
 - REST API Endpoints: All primary endpoints (POST /persons, PUT /persons/{id}/location, GET /persons/nearby, GET /persons) are functional.
@@ -103,4 +106,5 @@ Application Performance with 10 000 000 records in both users, user_locations ta
 ![image](https://github.com/user-attachments/assets/303e4738-9898-48cb-8f87-80af5908f3e6)
 
 - Overall Performance of all 4 api endpoints:
+  
 ![image](https://github.com/user-attachments/assets/beab2e45-afda-4adb-aff8-55cf0b929278)
