@@ -97,20 +97,25 @@ Data seeding:
 - Open PgAdmin ui http://localhost:5050/browser/ -> Tools -> Query tool
 - Run the query from src/main/kotlin/com/persons/finder/config/dataseeder.sql
 
-Performance Testing:
+Performance:
 
 10 000 000 users are almost equaly distributed around the following locations:
 
 -- City: Auckland, New Zealand
 ('Auckland, NZ', 174.7645, -36.8485, 0.05, 0.05), -- lon, lat, lon_buffer (degrees), lat_buffer (degrees)
+
 -- City: Bluff, New Zealand
 ('Bluff, NZ', 168.3499, -46.6083, 0.05, 0.05),
+
 -- City: Sydney, Australia
 ('Sydney, AU', 151.2093, -33.8688, 0.1, 0.1),
+
 -- City: Tokyo, Japan
 ('Tokyo, JP', 139.6917, 35.6895, 0.1, 0.1),
+
 -- City: New York, USA
 ('New York, USA', -74.0060, 40.7128, 0.1, 0.1),
+
 -- City: Berlin, Germany
 ('Berlin, DE', 13.4050, 52.5200, 0.1, 0.1)
 
@@ -131,6 +136,11 @@ Application Performance with 10 000 000 records in both users, user_locations ta
 - find nearby users within 5000 km radius: http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=5000&page=100&size=100
 - Response time = 3 seconds 81 miliseconds:
 ![image](https://github.com/user-attachments/assets/008339e0-3219-4e24-9672-18093ce0c187)
+
+- find nearby users within 15000 km radius (covers all 10 000 000 user locations in 5 countries): http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=15000&page=150&size=100
+- Response time = 4 seconds 82 miliseconds:
+![image](https://github.com/user-attachments/assets/839df73e-42fe-4b58-8637-6b486c3f4701)
+
 
 
 - Overall Performance of all 4 api endpoints:
