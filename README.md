@@ -138,7 +138,7 @@ Application Performance with 10 000 000 records in both users, user_locations ta
 ![image](https://github.com/user-attachments/assets/008339e0-3219-4e24-9672-18093ce0c187)
 
 
-- find nearby users within 15000 km radius (covers all 10 000 000 user locations in 5 countries): http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=15000&page=150&size=100
+- find nearby users within 15000 km radius (should cover most of 10 000 000 user locations): http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=15000&page=150&size=100
 - Response time = 4 seconds 82 miliseconds:
 
 ![image](https://github.com/user-attachments/assets/839df73e-42fe-4b58-8637-6b486c3f4701)
