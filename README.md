@@ -10,11 +10,12 @@ Key Achievements:
   - Optimizing database resource allocation, including shared buffers, work memory, and parallel processing workers, within Docker container limits.
   - Utilizing LIMIT and OFFSET directly in SQL for efficient pagination, ensuring only necessary records are transferred.
 - API Documentation: The application integrates OpenAPI/Swagger for comprehensive API documentation.
-- Clean Code Principles: The codebase employs DTOs and maintains a clear separation of concerns with clean architecture principles.
 - Testing: Integration Tests are included, utilizing appropriate frameworks to ensure robust functionality.
 - Robustness: Features comprehensive Input Validation and Error Handling (basic handling is present).
 - Deployment & Monitoring: Includes Docker Compose for easy environment management and deployment (Spring Boot, PostgreSQL/PostGIS, pgAdmin, Prometheus, Grafana),
   along with tuned Docker resource limits for both the application and database for enhanced performance and stability.
+- Implemented Liquibase for robust database schema version control, enabling automated, reliable, and repeatable database deployments across all environments.
+- Implemented a benchmarking and monitoring stack using Spring Actuator, Micrometer, Prometheus, and Grafana. This provides real-time insights into API performance and resource consumption
 
 Application start:
 
@@ -31,6 +32,21 @@ Application start:
 Persons Finder main Api:
 - Open the url in your browser: http://localhost:8080/swagger-ui/index.html#/
 
+Grafana:
+
+- Dashboards for Grafana are in the app folder 'person-finder/monitoring/grafana/provisioning/dashboards'
+- To display the app's metrics:
+- open http://localhost:3000/login in the browser (username 'admin', password 'admin')
+- import the dashboards prepared:
+![image](https://github.com/user-attachments/assets/dc544a91-0d67-4d6e-8fed-fa4e759bb909)
+
+- The Spring-Boot Dashboard' HTTP Statistics is useful for analyzing the api response latency:
+![image](https://github.com/user-attachments/assets/87d02a50-e97c-47e9-82b1-da3581328f5e)
+
+- CPU/Memory JVM usage can be monitored using the JVM Micrometer Dashboard:
+![image](https://github.com/user-attachments/assets/97bfd564-1d68-45bb-8120-928d202bc8b8)
+
+
 Database management:
 
 - Open PgAdmin UI in your browser: http://localhost:5050/browser/
@@ -43,26 +59,9 @@ Database management:
 - Username: emerge
 - Password: emerge
 
-Grafana:
+Database indexes:
 
-- Dashboards for Grafana are in the app folder 'person-finder/monitoring/grafana/provisioning/dashboards'
-- To display the app's metrics:
-- open http://localhost:3000/login in the browser (username 'admin', password 'admin')
-- import the dashboards prepared:
-![image](https://github.com/user-attachments/assets/0fd37007-989a-44ff-a5cd-9d49986fec26)
-
-![img_1.png](img_1.png)
-![img_2.png](img_2.png)
-
-- The Spring-Boot Dashboard' HTTP Statistics is very useful for analyzing the api response latency:
-![img_5.png](img_5.png)
-
-- CPU/Memory JVM usage can be monitored using the JVM Micrometer Dashboard:
-![img_7.png](img_7.png)
-
-
-- Database indexes
-![img_9.png](img_9.png)
+![image](https://github.com/user-attachments/assets/340cab68-9fb9-4579-a455-caf6edaf0546)
 
 idx_person_location_location_gist:
 
@@ -90,19 +89,18 @@ Database query for GET /persons/nearby endpoint (the query is in PersonLocationR
   - (using geography type) to confirm which points are exactly within the specified radius.
 This two-step process ensures both speed (via the index-assisted bounding box) and accuracy (via precise spherical distance calculations).
 
-
-Performance with 10 000 000 records in both users, user_locations tables:
-![img_15.png](img_15.png)
-
-- find nearby users within 5000 km radius: http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=5000&page=120&size=100
-![img_13.png](img_13.png)
-
-- Performance of all 4 api endpoints:
-![img_17.png](img_17.png)
-
-
 Data seeding:
 
 - Open PgAdmin ui http://localhost:5050/browser/ -> Tools -> Query tool
 - Run the query from src/main/kotlin/com/persons/finder/config/dataseeder.sql
 
+
+Application Performance with 10 000 000 records in both users, user_locations tables:
+
+![image](https://github.com/user-attachments/assets/77ca33ea-c99d-4939-b009-6a088aa59daf)
+
+- find nearby users within 5000 km radius: http://localhost:8080/api/v1/persons/nearby?lat=-36.8485&lon=174.7645&radiusKm=5000&page=120&size=100
+![image](https://github.com/user-attachments/assets/303e4738-9898-48cb-8f87-80af5908f3e6)
+
+- Overall Performance of all 4 api endpoints:
+![image](https://github.com/user-attachments/assets/beab2e45-afda-4adb-aff8-55cf0b929278)
