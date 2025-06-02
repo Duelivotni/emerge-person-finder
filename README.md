@@ -49,7 +49,8 @@ Grafana:
 - To display the app's metrics:
 - open http://localhost:3000/login in the browser (username 'admin', password 'admin')
 - import the dashboards prepared:
-![img.png](img.png)
+![image](https://github.com/user-attachments/assets/0fd37007-989a-44ff-a5cd-9d49986fec26)
+
 ![img_1.png](img_1.png)
 ![img_2.png](img_2.png)
 
