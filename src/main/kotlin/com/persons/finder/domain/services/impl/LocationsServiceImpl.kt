@@ -11,6 +11,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -45,12 +46,14 @@ class LocationsServiceImpl(
 
     @Transactional(readOnly = true)
     override fun findAround(latitude: Double, longitude: Double, radiusInMeters: Double, pageable: Pageable): Page<PersonLocationDetails> {
-        return personLocationRepository.findWithinRadius(
+        val projections = personLocationRepository.findWithinRadius(
             latitude,
             longitude,
             radiusInMeters,
             pageable
-        ).map { projection ->
+        )
+
+        val details = projections.map { projection ->
             PersonLocationDetails(
                 personId = projection.getPersonId(),
                 latitude = projection.getLatitude(),
@@ -58,5 +61,11 @@ class LocationsServiceImpl(
                 distanceKm = projection.getDistanceKm()
             )
         }
+
+        // Manually construct a PageImpl.
+        // use a simple approach for minimal overhead.
+        val totalElements = details.size.toLong()
+
+        return PageImpl(details, pageable, totalElements)
     }
 }

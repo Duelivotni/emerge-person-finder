@@ -2,7 +2,6 @@ package com.persons.finder.data.repository
 
 import com.persons.finder.data.entity.PersonLocationEntity
 import com.persons.finder.data.projection.PersonLocationProjection
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -10,7 +9,6 @@ import org.springframework.data.repository.query.Param
 
 interface PersonLocationRepository : JpaRepository<PersonLocationEntity, Long> {
     fun findByPersonId(personId: Long): PersonLocationEntity?
-
     fun deleteByPersonId(personId: Long)
 
     @Query(
@@ -23,6 +21,8 @@ interface PersonLocationRepository : JpaRepository<PersonLocationEntity, Long> {
                 ST_Distance(
                     CAST(pl.location AS geography),
                     CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geography)
+                    -- In PostGIS, 4326 is a Spatial Reference System Identifier
+                    -- it correctly identifies the (longitude, latitude) pair as a specific point on the globe
                 ) / 1000 AS distanceKm
             FROM person_locations pl
             WHERE
@@ -30,9 +30,9 @@ interface PersonLocationRepository : JpaRepository<PersonLocationEntity, Long> {
                 -- Convert radiusInMeters to approximate degrees for ST_Expand.
                 pl.location && ST_Expand(
                     CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geometry),
-                    CAST(:radiusInMeters AS double precision) / 111111.0 -- Approx. meters to degrees conversion
-                    -- conversion is necessary to ensure the ST_Expand function (which operates on geometry and its degree units) 
-                    -- it makes query result both complete (no missed points) and precise (only truly within-radius points)
+                    CAST(:radiusInMeters AS double precision) / 111111.0
+                    -- the division is for converting a radius meters into its approximate equivalent in degrees of latitude
+                    -- it's crucial for performance because it allows the spatial index (GIST) to quickly filter out the large data
                 )
             AND
                 -- Accurate filter for spheroidal distance (geography).
@@ -44,21 +44,6 @@ interface PersonLocationRepository : JpaRepository<PersonLocationEntity, Long> {
                 )
             ORDER BY distanceKm ASC
         """,
-        countQuery = """
-            SELECT COUNT(pl.id)
-            FROM person_locations pl
-            WHERE
-                pl.location && ST_Expand(
-                    CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geometry),
-                    CAST(:radiusInMeters AS double precision) / 111111.0
-                )
-            AND
-                ST_DWithin(
-                    CAST(pl.location AS geography),
-                    CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geography),
-                    CAST(:radiusInMeters AS double precision)
-                )
-        """,
         nativeQuery = true
     )
     fun findWithinRadius(
@@ -66,5 +51,5 @@ interface PersonLocationRepository : JpaRepository<PersonLocationEntity, Long> {
         @Param("lon") longitude: Double,
         @Param("radiusInMeters") radiusInMeters: Double,
         pageable: Pageable
-    ): Page<PersonLocationProjection>
+    ): List<PersonLocationProjection>
 }
