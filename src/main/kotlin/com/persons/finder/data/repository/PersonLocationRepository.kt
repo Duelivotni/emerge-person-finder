@@ -21,8 +21,6 @@ interface PersonLocationRepository : JpaRepository<PersonLocationEntity, Long> {
                 ST_Distance(
                     CAST(pl.location AS geography),
                     CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geography)
-                    -- In PostGIS, 4326 is a Spatial Reference System Identifier
-                    -- it correctly identifies the (longitude, latitude) pair as a specific point on the globe
                 ) / 1000 AS distanceKm
             FROM person_locations pl
             WHERE
@@ -31,8 +29,6 @@ interface PersonLocationRepository : JpaRepository<PersonLocationEntity, Long> {
                 pl.location && ST_Expand(
                     CAST(ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geometry),
                     CAST(:radiusInMeters AS double precision) / 111111.0
-                    -- the division is for converting a radius meters into its approximate equivalent in degrees of latitude
-                    -- it's crucial for performance because it allows the spatial index (GIST) to quickly filter out the large data
                 )
             AND
                 -- Accurate filter for spheroidal distance (geography).
