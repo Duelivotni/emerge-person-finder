@@ -19,6 +19,7 @@ Key Achievements:
   along with tuned Docker resource limits for both the application and database for enhanced performance and stability.
 - Implemented Liquibase for robust database schema version control, enabling automated, reliable, and repeatable database deployments across all environments.
 - Implemented a benchmarking and monitoring stack using Spring Actuator, Micrometer, Prometheus, and Grafana. This provides real-time insights into API performance and resource consumption
+- Added pagination for nearby locations request, crucial for efficiently handling large result sets. Pagination spans from optimized database-level queries (LIMIT/OFFSET) right up to the API response structure.
 
 Application start:
 
